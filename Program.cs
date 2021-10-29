@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Lab10
 {
@@ -8,13 +7,13 @@ namespace Lab10
     public class Alert
     {
         public int Type;
-        
+
         public string Info;
 
         public Alert(int type, string info)
         {
             Type = type;
-            Info = info; 
+            Info = info;
         }
     }
 
@@ -24,58 +23,58 @@ namespace Lab10
 
         public Decision(string info)
         {
-            Info = info; 
+            Info = info;
         }
 
         public string DoIt()
         {
-            return Info + "... Doing it"; 
+            return Info + "... Doing it";
         }
     }
 
     public interface IHandler
     {
         void PostAlert(Alert alert, string to);
-        
+
         void HandleAlert(Alert alert);
 
-        bool GetEvacuatedStatus(); 
-        
+        bool GetEvacuatedStatus();
+
     }
-    
+
     public abstract class AbstractHandler : IHandler
     {
 
         private string _name;
 
-        private bool _evacuated = false; 
-        
+        private bool _evacuated = false;
+
         private List<IHandler> _subordinates;
 
         private IHandler _headPerson;
 
         public bool GetEvacuatedStatus()
         {
-            return _evacuated; 
+            return _evacuated;
         }
 
         public void SetEvacuated(bool status)
         {
-            _evacuated = status; 
+            _evacuated = status;
         }
 
         public void PostAlert(Alert alert, string to)
         {
             if (to == "boss")
             {
-                GetHedPerson().HandleAlert(alert); 
+                GetHeadPerson().HandleAlert(alert);
             }
 
             else
             {
                 foreach (var person in GetSubordinates())
                 {
-                    person.HandleAlert(alert); 
+                    person.HandleAlert(alert);
                 }
             }
         }
@@ -107,22 +106,22 @@ namespace Lab10
 
         public bool SubordinatesEvacuated()
         {
-            
+
             foreach (var subordinate in GetSubordinates())
             {
                 if (!subordinate.GetEvacuatedStatus())
                 {
                     return false;
                 }
-                
+
             }
 
-            return true; 
+            return true;
         }
 
         public abstract void HandleAlert(Alert alert);
 
-        public abstract void SeeDanger(); 
+        public abstract void SeeDanger();
 
         public List<IHandler> GetSubordinates()
         {
@@ -135,11 +134,11 @@ namespace Lab10
             {
                 return;
             }
-            
-            _subordinates = people; 
+
+            _subordinates = people;
         }
-        
-        public IHandler GetHedPerson()
+
+        public IHandler GetHeadPerson()
         {
             return this is Ceo ? null : _headPerson;
         }
@@ -148,28 +147,28 @@ namespace Lab10
         {
             if (this is Ceo)
             {
-                return; 
+                return;
             }
-           
+
             _headPerson = person;
-            
+
         }
 
         public string GetName()
         {
-            return _name; 
+            return _name;
         }
 
         public void SetName(string name)
         {
-            _name = name; 
+            _name = name;
         }
     }
 
     public class Ceo : AbstractHandler
     {
         private List<Decision> _decisionOptions = new List<Decision>();
-        private static int _decisionSuggestionCounter = 0; 
+        private static int _decisionSuggestionCounter = 0;
 
         public override void SeeDanger()
         {
@@ -182,11 +181,11 @@ namespace Lab10
         {
             if (_decisionSuggestionCounter == 1) // need to randomize this...
             {
-                Decision decision = _decisionOptions[0]; 
+                Decision decision = _decisionOptions[0];
                 Console.WriteLine("The CEO chose " + decision.DoIt());
             }
 
-            _decisionSuggestionCounter++; 
+            _decisionSuggestionCounter++;
         }
 
         public override void HandleAlert(Alert alert)
@@ -196,21 +195,21 @@ namespace Lab10
                 case 1:
                     SeeDanger();
                     break;
-                
+
                 case 3:
-                    
+
                     // sleep for a two seconds first to assure all manager's decisions have been reached 
                     System.Threading.Thread.Sleep(2000);
-                    
+
                     // get Manager Decisions
                     foreach (var manager in GetSubordinates())
                     {
-                        _decisionOptions.Add(((Manager) manager).ManagerDecision);
+                        _decisionOptions.Add(((Manager)manager).ManagerDecision);
                     }
-                    
+
                     Grant();
                     break;
-                
+
                 case 99:
                     OrderEvacuationOfSubordinates();
                     if (SubordinatesEvacuated())
@@ -218,11 +217,11 @@ namespace Lab10
                         Evacuate();
                     }
                     break;
-                
+
                 default:
-                    return; 
+                    return;
             }
-            
+
         }
     }
 
@@ -236,7 +235,7 @@ namespace Lab10
             Console.WriteLine("Manager, " + GetName() + ", requesting info from supervisors");
             Alert alert = new Alert(4, "Need info from supervisors");
             PostAlert(alert, "subordinates");
-            
+
         }
 
         public void ContactBoss(Alert alert)
@@ -249,11 +248,11 @@ namespace Lab10
             Console.WriteLine("Manager, " + GetName() + ", suggesting decision.");
             Decision decision = new Decision("Manager, " + GetName() + "'s decision " +
                                              "that the city’s environmental department is to be notified");
-            ManagerDecision = decision; 
-            Alert alert = new Alert(3, "Decision Reached"); 
+            ManagerDecision = decision;
+            Alert alert = new Alert(3, "Decision Reached");
             ContactBoss(alert);
-            
-            return decision; 
+
+            return decision;
         }
 
         public override void HandleAlert(Alert alert)
@@ -262,8 +261,8 @@ namespace Lab10
             {
                 case 1:
                     SeeDanger();
-                    ContactBoss(alert); 
-                    break; 
+                    ContactBoss(alert);
+                    break;
                 case 2:
                     SuggestDecision();
                     break;
@@ -276,11 +275,11 @@ namespace Lab10
 
                     break;
                 default:
-                    return; 
+                    return;
             }
         }
     }
-    
+
     public class ProjectLeader : AbstractHandler
     {
 
@@ -293,12 +292,12 @@ namespace Lab10
 
         public string ProvideInfo()
         {
-            string output = "Information from Project Leader, " + GetName(); 
+            string output = "Information from Project Leader, " + GetName();
             Console.WriteLine(output);
 
             return output;
         }
-        
+
         public override void HandleAlert(Alert alert)
         {
             switch (alert.Type)
@@ -319,7 +318,7 @@ namespace Lab10
 
                     break;
                 default:
-                    return; 
+                    return;
             }
         }
     }
@@ -336,7 +335,7 @@ namespace Lab10
 
         public string ProvideInfo()
         {
-            string output = "Information from Supervisor, " + GetName(); 
+            string output = "Information from Supervisor, " + GetName();
             Console.WriteLine(output);
 
             return output;
@@ -344,23 +343,23 @@ namespace Lab10
 
         public void SendSupport()
         {
-            Worker workerOne, workerTwo; 
+            Worker workerOne, workerTwo;
 
             if (GetName() == "Jeff")
             {
-                workerOne = (Worker) GetSubordinates()[0]; 
-                workerTwo = (Worker) GetSubordinates()[2]; 
+                workerOne = (Worker)GetSubordinates()[0];
+                workerTwo = (Worker)GetSubordinates()[2];
             }
             else
             {
-                workerOne = (Worker) GetSubordinates()[0]; 
-                workerTwo = (Worker) GetSubordinates()[1]; 
+                workerOne = (Worker)GetSubordinates()[0];
+                workerTwo = (Worker)GetSubordinates()[1];
             }
 
-            Console.WriteLine("Sending support from the workers: " 
-                              + workerOne.GetName() + " and " + workerTwo.GetName()); 
+            Console.WriteLine("Sending support from the workers: "
+                              + workerOne.GetName() + " and " + workerTwo.GetName());
         }
-        
+
         public override void HandleAlert(Alert alert)
         {
             switch (alert.Type)
@@ -379,17 +378,17 @@ namespace Lab10
                     {
                         Evacuate();
                     }
-                   
+
                     break;
                 default:
-                    return; 
+                    return;
             }
         }
     }
 
     public class Worker : AbstractHandler
     {
-        
+
         public override void SeeDanger()
         {
             Console.WriteLine("Worker, " + GetName() + ", sees a gas leak in the big tank.");
@@ -402,7 +401,7 @@ namespace Lab10
         {
             Console.WriteLine("Worker, " + GetName() + ", is fixing: " + alert.Info);
         }
-        
+
         public override void HandleAlert(Alert alert)
         {
             switch (alert.Type)
@@ -414,22 +413,22 @@ namespace Lab10
                     Evacuate();
                     break;
                 default:
-                    return; 
+                    return;
             }
         }
     }
-    
-    
+
+
     internal class Program
     {
         public static void Main(string[] args)
         {
 
             // create project leaders
-            ProjectLeader Chuck = new ProjectLeader(); 
+            ProjectLeader Chuck = new ProjectLeader();
             Chuck.SetName("Chuck");
-            
-            ProjectLeader Denise = new ProjectLeader(); 
+
+            ProjectLeader Denise = new ProjectLeader();
             Denise.SetName("Denise");
 
             // create supervisors
@@ -443,19 +442,19 @@ namespace Lab10
             Worker John = new Worker();
             John.SetName("John");
             John.SetHeadPerson(Jack);
-            
+
             Worker Mary = new Worker();
             Mary.SetName("Mary");
             Mary.SetHeadPerson(Jack);
-            
+
             Worker Jane = new Worker();
             Jane.SetName("Jane");
             Jane.SetHeadPerson(Jack);
-            
+
             Worker Tom = new Worker();
             Tom.SetName("Tom");
             Tom.SetHeadPerson(Jack);
-            
+
             Worker Nick = new Worker();
             Nick.SetName("Nick");
             Nick.SetHeadPerson(Jack);
@@ -463,52 +462,52 @@ namespace Lab10
             Worker Rob = new Worker();
             Rob.SetName("Rob");
             Rob.SetHeadPerson(Jeff);
-            
+
             Worker Ed = new Worker();
             Ed.SetName("Ed");
             Ed.SetHeadPerson(Jeff);
-            
+
             Worker Rick = new Worker();
             Rick.SetName("Rick");
             Rick.SetHeadPerson(Jeff);
-            
+
             Worker Michael = new Worker();
             Michael.SetName("Michael");
             Michael.SetHeadPerson(Jeff);
-            
+
             Worker Joe = new Worker();
             Joe.SetName("Joe");
             Joe.SetHeadPerson(Chuck);
-            
+
             Worker Frank = new Worker();
             Frank.SetName("Frank");
             Frank.SetHeadPerson(Chuck);
-            
+
             Worker Sam = new Worker();
             Sam.SetName("Sam");
             Sam.SetHeadPerson(Chuck);
-            
+
             Worker Greg = new Worker();
             Greg.SetName("Greg");
             Greg.SetHeadPerson(Chuck);
-            
+
             Worker Amy = new Worker();
             Amy.SetName("Amy");
             Amy.SetHeadPerson(Denise);
-            
+
             Worker Wil = new Worker();
             Wil.SetName("Wil");
             Wil.SetHeadPerson(Denise);
-            
+
             Worker Nancy = new Worker();
             Nancy.SetName("Nancy");
             Nancy.SetHeadPerson(Denise);
-            
+
             Worker Adam = new Worker();
             Adam.SetName("Adam");
             Adam.SetHeadPerson(Denise);
 
-           // create CEO
+            // create CEO
             Ceo Steve = new Ceo();
             Steve.SetName("Steve");
 
@@ -516,28 +515,31 @@ namespace Lab10
             Manager Bob = new Manager();
             Bob.SetName("Bob");
             Bob.SetHeadPerson(Steve);
-            Bob.SetSubordinates(new List<IHandler> {Jack, Jeff});
+            Bob.SetSubordinates(new List<IHandler> { Jack, Jeff });
 
             Manager Rachel = new Manager();
             Rachel.SetName("Rachel");
             Rachel.SetHeadPerson(Steve);
-            Rachel.SetSubordinates(new List<IHandler> {Chuck, Denise});
-            
+            Rachel.SetSubordinates(new List<IHandler> { Chuck, Denise });
+
             // assign all bosses/subs not already completed
-            Steve.SetSubordinates(new List<IHandler> {Bob, Rachel});
-            Jack.SetSubordinates(new List<IHandler> {John, Mary, Jane, Tom, Nick});
+            Steve.SetSubordinates(new List<IHandler> { Bob, Rachel });
+            Jack.SetSubordinates(new List<IHandler> { John, Mary, Jane, Tom, Nick });
             Jack.SetHeadPerson(Bob);
-            Jeff.SetSubordinates(new List<IHandler> {Rob, Ed, Rick, Michael});
+            Jeff.SetSubordinates(new List<IHandler> { Rob, Ed, Rick, Michael });
             Jeff.SetHeadPerson(Bob);
-            Chuck.SetSubordinates(new List<IHandler> {Joe, Sam, Frank, Greg});
+            Chuck.SetSubordinates(new List<IHandler> { Joe, Sam, Frank, Greg });
             Chuck.SetHeadPerson(Rachel);
-            Denise.SetSubordinates(new List<IHandler> {Amy, Wil, Nancy, Adam});
+            Denise.SetSubordinates(new List<IHandler> { Amy, Wil, Nancy, Adam });
             Denise.SetHeadPerson(Rachel);
-            
+
             // start the given scenario
             John.SeeDanger();
-            
+
             Steve.OrderEvacuationOfSubordinates();
+
+            // prevent immediate closure of the console 
+            Console.ReadKey();
         }
     }
 }
